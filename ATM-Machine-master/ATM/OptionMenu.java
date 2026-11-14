@@ -1,215 +1,235 @@
-import java.io.IOException;
+
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.InputMismatchException;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Scanner;
 
 public class OptionMenu {
-	Scanner menuInput = new Scanner(System.in);
-	DecimalFormat moneyFormat = new DecimalFormat("'$'###,##0.00");
-	HashMap<Integer, Account> data = new HashMap<Integer, Account>();
 
-	public void getLogin() throws IOException {
-		boolean end = false;
-		int customerNumber = 0;
-		int pinNumber = 0;
-		while (!end) {
-			try {
-				System.out.print("\nEnter your customer number: ");
-				customerNumber = menuInput.nextInt();
-				System.out.print("\nEnter your PIN number: ");
-				pinNumber = menuInput.nextInt();
-				Iterator it = data.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry pair = (Map.Entry) it.next();
-					Account acc = (Account) pair.getValue();
-					if (data.containsKey(customerNumber) && pinNumber == acc.getPinNumber()) {
-						getAccountType(acc);
-						end = true;
-						break;
-					}
-				}
-				if (!end) {
-					System.out.println("\nWrong Customer Number or Pin Number");
-				}
-			} catch (InputMismatchException e) {
-				System.out.println("\nInvalid Character(s). Only Numbers.");
-			}
-		}
-	}
+    private final Scanner input = new Scanner(System.in);
+    private final DecimalFormat moneyFormat=new DecimalFormat("'$'###,##0.00");
 
-	public void getAccountType(Account acc) {
-		boolean end = false;
-		while (!end) {
-			try {
-				System.out.println("\nSelect the account you want to access: ");
-				System.out.println(" Type 1 - Checkings Account");
-				System.out.println(" Type 2 - Savings Account");
-				System.out.println(" Type 3 - Exit");
-				System.out.print("\nChoice: ");
+    private final HashMap<Integer, Account> accounts = new HashMap<>();
+    private int getNumber()
+	{
+        while (true) 
+		{
+            try 
+			{
+                return input.nextInt();
+            } 
+			catch (InputMismatchException e) 
+			{
+                System.out.println("Invalid input. Enter numbers only.");
+                input.next();
+                System.out.print("Try again: ");
+            }
+        }
+    }
 
-				int selection = menuInput.nextInt();
+    public void login() {
 
-				switch (selection) {
-				case 1:
-					getChecking(acc);
-					break;
-				case 2:
-					getSaving(acc);
-					break;
-				case 3:
-					end = true;
-					break;
-				default:
-					System.out.println("\nInvalid Choice.");
-				}
-			} catch (InputMismatchException e) {
-				System.out.println("\nInvalid Choice.");
-				menuInput.next();
-			}
-		}
-	}
+        System.out.println("\n========== CUSTOMER LOGIN ==========");
 
-	public void getChecking(Account acc) {
-		boolean end = false;
-		while (!end) {
-			try {
-				System.out.println("\nCheckings Account: ");
-				System.out.println(" Type 1 - View Balance");
-				System.out.println(" Type 2 - Withdraw Funds");
-				System.out.println(" Type 3 - Deposit Funds");
-				System.out.println(" Type 4 - Transfer Funds");
-				System.out.println(" Type 5 - Exit");
-				System.out.print("\nChoice: ");
+        System.out.print("Enter Customer Number: ");
+        int customerNumber = getNumber();
 
-				int selection = menuInput.nextInt();
+        System.out.print("Enter PIN: ");
+        int pinNumber = getNumber();
 
-				switch (selection) {
-				case 1:
-					System.out.println("\nCheckings Account Balance: " + moneyFormat.format(acc.getCheckingBalance()));
-					break;
-				case 2:
-					acc.getCheckingWithdrawInput();
-					break;
-				case 3:
-					acc.getCheckingDepositInput();
-					break;
+        Account account = accounts.get(customerNumber);
 
-				case 4:
-					acc.getTransferInput("Checkings");
-					break;
-				case 5:
-					end = true;
-					break;
-				default:
-					System.out.println("\nInvalid Choice.");
-				}
-			} catch (InputMismatchException e) {
-				System.out.println("\nInvalid Choice.");
-				menuInput.next();
-			}
-		}
-	}
+        if (account != null && account.getPinNumber() == pinNumber) {
+            System.out.println("\nLogin successful!");
+            selectAccount(account);
+        } else {
+            System.out.println("\nIncorrect Customer Number or PIN.");
+        }
+    }
 
-	public void getSaving(Account acc) {
-		boolean end = false;
-		while (!end) {
-			try {
-				System.out.println("\nSavings Account: ");
-				System.out.println(" Type 1 - View Balance");
-				System.out.println(" Type 2 - Withdraw Funds");
-				System.out.println(" Type 3 - Deposit Funds");
-				System.out.println(" Type 4 - Transfer Funds");
-				System.out.println(" Type 5 - Exit");
-				System.out.print("Choice: ");
-				int selection = menuInput.nextInt();
-				switch (selection) {
-				case 1:
-					System.out.println("\nSavings Account Balance: " + moneyFormat.format(acc.getSavingBalance()));
-					break;
-				case 2:
-					acc.getsavingWithdrawInput();
-					break;
-				case 3:
-					acc.getSavingDepositInput();
-					break;
-				case 4:
-					acc.getTransferInput("Savings");
-					break;
-				case 5:
-					end = true;
-					break;
-				default:
-					System.out.println("\nInvalid Choice.");
-				}
-			} catch (InputMismatchException e) {
-				System.out.println("\nInvalid Choice.");
-				menuInput.next();
-			}
-		}
-	}
+    public void selectAccount(Account account) {
 
-	public void createAccount() throws IOException {
-		int cst_no = 0;
-		boolean end = false;
-		while (!end) {
-			try {
-				System.out.println("\nEnter your customer number ");
-				cst_no = menuInput.nextInt();
-				Iterator it = data.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry pair = (Map.Entry) it.next();
-					if (!data.containsKey(cst_no)) {
-						end = true;
-					}
-				}
-				if (!end) {
-					System.out.println("\nThis customer number is already registered");
-				}
-			} catch (InputMismatchException e) {
-				System.out.println("\nInvalid Choice.");
-				menuInput.next();
-			}
-		}
-		System.out.println("\nEnter PIN to be registered");
-		int pin = menuInput.nextInt();
-		data.put(cst_no, new Account(cst_no, pin));
-		System.out.println("\nYour new account has been successfuly registered!");
-		System.out.println("\nRedirecting to login.............");
-		getLogin();
-	}
+        boolean exit = false;
 
-	public void mainMenu() throws IOException {
-		data.put(952141, new Account(952141, 191904, 1000, 5000));
-		data.put(123, new Account(123, 123, 20000, 50000));
-		boolean end = false;
-		while (!end) {
-			try {
-				System.out.println("\n Type 1 - Login");
-				System.out.println(" Type 2 - Create Account");
-				System.out.print("\nChoice: ");
-				int choice = menuInput.nextInt();
-				switch (choice) {
-				case 1:
-					getLogin();
-					end = true;
-					break;
-				case 2:
-					createAccount();
-					end = true;
-					break;
-				default:
-					System.out.println("\nInvalid Choice.");
-				}
-			} catch (InputMismatchException e) {
-				System.out.println("\nInvalid Choice.");
-				menuInput.next();
-			}
-		}
-		System.out.println("\nThank You for using this ATM.\n");
-		menuInput.close();
-		System.exit(0);
-	}
+        while (!exit) {
+            System.out.println("\n========== ACCOUNT MENU ==========");
+            System.out.println("1. Checking Account");
+            System.out.println("2. Savings Account");
+            System.out.println("3. Logout");
+            System.out.print("Enter your choice: ");
+
+            int choice = getNumber();
+
+            switch (choice) {
+                case 1:
+                    checkingMenu(account);
+                    break;
+
+                case 2:
+                    savingsMenu(account);
+                    break;
+
+                case 3:
+                    exit = true;
+                    System.out.println("You have been logged out.");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    public void checkingMenu(Account account) {
+
+        boolean exit = false;
+
+        while (!exit) {
+            System.out.println("\n========== CHECKING ACCOUNT ==========");
+            System.out.println("1. View Balance");
+            System.out.println("2. Withdraw Money");
+            System.out.println("3. Deposit Money");
+            System.out.println("4. Transfer Money");
+            System.out.println("5. Back");
+            System.out.print("Enter your choice: ");
+
+            int choice = getNumber();
+
+            switch (choice) {
+                case 1:
+                    System.out.println("Checking Balance: "
+                            + moneyFormat.format(account.getCheckingBalance()));
+                    break;
+
+                case 2:
+                    account.checkingWithdraw(input);
+                    break;
+
+                case 3:
+                    account.checkingDeposit(input);
+                    break;
+
+                case 4:
+                    account.transferMoney("Checking", input);
+                    break;
+
+                case 5:
+                    exit = true;
+                    break;
+
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    public void savingsMenu(Account account) {
+
+        boolean exit = false;
+
+        while (!exit) {
+            System.out.println("\n========== SAVINGS ACCOUNT ==========");
+            System.out.println("1. View Balance");
+            System.out.println("2. Withdraw Money");
+            System.out.println("3. Deposit Money");
+            System.out.println("4. Transfer Money");
+            System.out.println("5. Back");
+            System.out.print("Enter your choice: ");
+
+            int choice = getNumber();
+
+            switch (choice) {
+                case 1:
+                    System.out.println("Savings Balance: "
+                            + moneyFormat.format(account.getSavingBalance()));
+                    break;
+
+                case 2:
+                    account.savingsWithdraw(input);
+                    break;
+
+                case 3:
+                    account.savingsDeposit(input);
+                    break;
+
+                case 4:
+                    account.transferMoney("Savings", input);
+                    break;
+
+                case 5:
+                    exit = true;
+                    break;
+
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    public void createAccount() {
+
+        System.out.println("\n========== CREATE ACCOUNT ==========");
+
+        System.out.print("Enter Customer Number: ");
+        int customerNumber = getNumber();
+
+        if (accounts.containsKey(customerNumber)) {
+            System.out.println("Customer number already exists.");
+            return;
+        }
+
+        System.out.print("Create a PIN: ");
+        int pinNumber = getNumber();
+
+        Account newAccount = new Account(customerNumber, pinNumber);
+
+        accounts.put(customerNumber, newAccount);
+
+        System.out.println("\nAccount created successfully!");
+        System.out.println("You can now login using your details.");
+    }
+
+    public void mainMenu() {
+
+        accounts.put(952141,
+                new Account(952141, 191904, 1000, 5000));
+
+        accounts.put(123,
+                new Account(123, 123, 20000, 50000));
+
+        boolean exit = false;
+
+        while (!exit) {
+
+            System.out.println("\n================================");
+            System.out.println("           ATM MENU             ");
+            System.out.println("================================");
+            System.out.println("1. Login");
+            System.out.println("2. Create New Account");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = getNumber();
+
+            switch (choice) {
+                case 1:
+                    login();
+                    break;
+
+                case 2:
+                    createAccount();
+                    break;
+
+                case 3:
+                    exit = true;
+                    System.out.println("\nThank you for using our ATM!");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+
+        input.close();
+    }
 }
